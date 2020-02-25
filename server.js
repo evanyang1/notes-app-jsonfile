@@ -10,12 +10,31 @@ app.use(express.json())
 
 
 
-app.post('/notes', (req, res) => {
+app.post('/api/notes', (req, res) => {
     fs.readFile('./db/db.json', 'utf8', (err, notes) => {
         if (err) console.log(err)
         
+        
         const notesArr = JSON.parse(notes)
+        
+        console.log(notesArr)
         notesArr.push(req.body)
+        fs.writeFile('./db/db.json', JSON.stringify(notesArr), err => {
+            if(err) console.log(err)
+
+            res.sendStatus(200)
+        })
+    })
+})
+
+app.delete('/api/notes/:id', (req, res) => {
+    console.log('hi')
+    fs.readFile('./db/db.json', 'utf8', (err, notes) => {
+        if (err) console.log(err)
+        
+        let notesArr = JSON.parse(notes)
+        notesArr = notesArr.filter(note => note.title !== req.params.id)
+        
         fs.writeFile('./db/db.json', JSON.stringify(notesArr), err => {
             if(err) console.log(err)
 
@@ -30,9 +49,6 @@ app.get('/notes', (req, res) => {
     res.sendFile(path.join(__dirname, './public/notes.html'))
 })
 
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, './public/index.html'))
-})
 
 
 
@@ -46,5 +62,10 @@ app.get('/api/notes', (req, res) => {
     })
 })
 
+
+// BOTTOM
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, './public/index.html'))
+})
 
 app.listen(3000)
